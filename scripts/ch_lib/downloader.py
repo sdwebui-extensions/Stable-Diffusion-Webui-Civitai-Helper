@@ -3,6 +3,7 @@ import sys
 import requests
 import os
 from . import util
+from logger import logger
 
 
 dl_ext = ".downloading"
@@ -93,6 +94,7 @@ def dl(url, folder, filename, filepath):
 
     # write to file
     with open(dl_file_path, "ab") as f:
+        last = 0
         for chunk in r.iter_content(chunk_size=1024):
             if chunk:
                 downloaded_size += len(chunk)
@@ -101,10 +103,14 @@ def dl(url, folder, filename, filepath):
                 f.flush()
 
                 # progress
-                progress = int(50 * downloaded_size / total_size)
-                sys.stdout.reconfigure(encoding='utf-8')
-                sys.stdout.write("\r[%s%s] %d%%" % ('-' * progress, ' ' * (50 - progress), 100 * downloaded_size / total_size))
-                sys.stdout.flush()
+                # progress = int(50 * downloaded_size / total_size)
+                # sys.stdout.reconfigure(encoding='utf-8')
+                # sys.stdout.write("\r[%s%s] %d%%" % ('-' * progress, ' ' * (50 - progress), 100 * downloaded_size / total_size))
+                # sys.stdout.flush()
+                progress = int(100 * downloaded_size / total_size)
+                if progress != last:
+                    logger.info(f"downloading the {dl_file_path} at {progress}%")
+                    last = progress
 
     print()
 

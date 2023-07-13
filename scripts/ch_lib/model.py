@@ -4,6 +4,7 @@ import os
 import json
 from . import util
 from modules import shared
+from modules.paths_internal import data_path
 
 
 # this is the default root path
@@ -13,10 +14,10 @@ root_path = os.getcwd()
 # then model folder is in absolute path, not based on this root path anymore.
 # so to make extension work with those absolute model folder paths, model folder also need to be in absolute path
 folders = {
-    "ti": os.path.join(root_path, "embeddings"),
-    "hyper": os.path.join(root_path, "models", "hypernetworks"),
-    "ckp": os.path.join(root_path, "models", "Stable-diffusion"),
-    "lora": os.path.join(root_path, "models", "Lora"),
+    "ti": os.path.join(data_path, "embeddings"),
+    "hyper": os.path.join(data_path, "models", "hypernetworks"),
+    "ckp": os.path.join(data_path, "models", "Stable-diffusion"),
+    "lora": os.path.join(data_path, "models", "Lora"),
 }
 
 exts = (".bin", ".pt", ".safetensors", ".ckpt")
@@ -36,8 +37,8 @@ def get_custom_model_folder():
     if shared.cmd_opts.hypernetwork_dir and os.path.isdir(shared.cmd_opts.hypernetwork_dir):
         folders["hyper"] = shared.cmd_opts.hypernetwork_dir
 
-    if shared.cmd_opts.ckpt_dir and os.path.isdir(shared.cmd_opts.ckpt_dir):
-        folders["ckp"] = shared.cmd_opts.ckpt_dir
+    # if shared.cmd_opts.ckpt_dir and os.path.isdir(shared.cmd_opts.ckpt_dir):
+    #     folders["ckp"] =hared.cmd_opts.ckpt_dir
 
     if shared.cmd_opts.lora_dir and os.path.isdir(shared.cmd_opts.lora_dir):
         folders["lora"] = shared.cmd_opts.lora_dir
