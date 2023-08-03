@@ -31,11 +31,6 @@ def dl(url, folder, filename, filepath):
         
         if filename:
             file_path = os.path.join(folder, filename)
-    pid_num = os.fork()
-    if pid_num!=0:
-        while not os.path.exists(file_path):
-            time.sleep(10)
-        return file_path
 
     # first request for header
     rh = requests.get(url, stream=True, verify=False, headers=util.def_headers, proxies=util.proxies)
@@ -83,6 +78,14 @@ def dl(url, folder, filename, filepath):
 
 
     util.printD(f"Downloading to temp file: {dl_file_path}")
+    pid_num = os.fork()
+    if pid_num!=0:
+        while not os.path.exists(file_path):
+            time.sleep(2)
+            if os.path.exists(dl_file_path):
+                downloaded_size = os.path.getsize(dl_file_path)
+                util.printD(f"Downloaded size: {downloaded_size}/{total_size}")
+        return file_path
 
     # check if downloading file is exsited
     while not os.path.exists(file_path):
