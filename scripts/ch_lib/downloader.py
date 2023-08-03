@@ -4,6 +4,7 @@ import requests
 import os
 from . import util
 from logger import logger
+import time
 
 
 dl_ext = ".downloading"
@@ -30,6 +31,11 @@ def dl(url, folder, filename, filepath):
         
         if filename:
             file_path = os.path.join(folder, filename)
+    pid_num = os.fork()
+    if pid_num!=0:
+        while not os.path.exists(file_path):
+            time.sleep(10)
+        return file_path
 
     # first request for header
     rh = requests.get(url, stream=True, verify=False, headers=util.def_headers, proxies=util.proxies)
@@ -79,43 +85,44 @@ def dl(url, folder, filename, filepath):
     util.printD(f"Downloading to temp file: {dl_file_path}")
 
     # check if downloading file is exsited
-    downloaded_size = 0
-    if os.path.exists(dl_file_path):
-        downloaded_size = os.path.getsize(dl_file_path)
-
-    util.printD(f"Downloaded size: {downloaded_size}")
-
-    # create header range
-    headers = {'Range': 'bytes=%d-' % downloaded_size}
-    headers['User-Agent'] = util.def_headers['User-Agent']
-
-    # download with header
-    r = requests.get(url, stream=True, verify=False, headers=headers, proxies=util.proxies)
-
-    # write to file
-    with open(dl_file_path, "ab") as f:
-        last = 0
-        for chunk in r.iter_content(chunk_size=1024):
-            if chunk:
-                downloaded_size += len(chunk)
-                f.write(chunk)
-                # force to write to disk
-                f.flush()
-
-                # progress
-                # progress = int(50 * downloaded_size / total_size)
-                # sys.stdout.reconfigure(encoding='utf-8')
-                # sys.stdout.write("\r[%s%s] %d%%" % ('-' * progress, ' ' * (50 - progress), 100 * downloaded_size / total_size))
-                # sys.stdout.flush()
-                progress = int(100 * downloaded_size / total_size)
-                if progress != last:
-                    logger.info(f"downloading the {dl_file_path} at {progress}%")
-                    last = progress
-
-    print()
-
-    # rename file
-    os.rename(dl_file_path, file_path)
+    while not os.path.exists(file_path):
+        downloaded_size = 0
+        if os.path.exists(dl_file_path):
+            downloaded_size = os.path.getsize(dl_file_path)
+    
+        util.printD(f"Downloaded size: {downloaded_size}")
+    
+        # create header range
+        headers = {'Range': 'bytes=%d-' % downloaded_size}
+        headers['User-Agent'] = util.def_headers['User-Agent']
+    
+        # download with header
+        r = requests.get(url, stream=True, verify=False, headers=headers, proxies=util.proxies)
+    
+        # write to file
+        with open(dl_file_path, "ab") as f:
+            last = 0
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    downloaded_size += len(chunk)
+                    f.write(chunk)
+                    # force to write to disk
+                    f.flush()
+    
+                    # progress
+                    # progress = int(50 * downloaded_size / total_size)
+                    # sys.stdout.reconfigure(encoding='utf-8')
+                    # sys.stdout.write("\r[%s%s] %d%%" % ('-' * progress, ' ' * (50 - progress), 100 * downloaded_size / total_size))
+                    # sys.stdout.flush()
+                    progress = int(100 * downloaded_size / total_size)
+                    if progress != last:
+                        logger.info(f"downloading the {dl_file_path} at {progress}%")
+                        last = progress
+    
+        print()
+    
+        # rename file
+        os.rename(dl_file_path, file_path)
     util.printD(f"File Downloaded to: {file_path}")
     return file_path
 
