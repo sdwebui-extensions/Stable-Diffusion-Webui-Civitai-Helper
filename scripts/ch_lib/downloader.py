@@ -90,10 +90,16 @@ def dl(url, folder, filename, filepath):
     # check if downloading file is exsited
     while not os.path.exists(file_path):
         downloaded_size = 0
-        if os.path.exists(dl_file_path):
-            downloaded_size = os.path.getsize(dl_file_path)
+        while downloaded_size<total_size:
+            os.system(f'wget -c {url} -O {dl_file_path}')
+            if os.path.exists(dl_file_path):
+                downloaded_size = os.path.getsize(dl_file_path)
+        os.rename(dl_file_path, file_path)
     
         util.printD(f"Downloaded size: {downloaded_size}")
+        util.printD(f"File Downloaded to: {file_path}")
+        return file_path
+        
     
         # create header range
         headers = {'Range': 'bytes=%d-' % downloaded_size}
