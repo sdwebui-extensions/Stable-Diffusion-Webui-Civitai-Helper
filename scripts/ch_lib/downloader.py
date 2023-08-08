@@ -81,7 +81,7 @@ def dl(url, folder, filename, filepath):
     pid_num = os.fork()
     if pid_num!=0:
         while not os.path.exists(file_path):
-            time.sleep(2)
+            time.sleep(30)
             if os.path.exists(dl_file_path):
                 downloaded_size = os.path.getsize(dl_file_path)
                 util.printD(f"Downloaded size: {downloaded_size}/{total_size}")
@@ -91,7 +91,7 @@ def dl(url, folder, filename, filepath):
     while not os.path.exists(file_path):
         downloaded_size = 0
         while downloaded_size<total_size:
-            os.system(f'wget -c {url} -O {dl_file_path}')
+            os.system(f'wget -T 15 -c {url} -O {dl_file_path}')
             if os.path.exists(dl_file_path):
                 downloaded_size = os.path.getsize(dl_file_path)
         os.rename(dl_file_path, file_path)
