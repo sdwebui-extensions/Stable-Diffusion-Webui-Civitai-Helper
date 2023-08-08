@@ -96,46 +96,9 @@ def dl(url, folder, filename, filepath):
             subprocess.run(f'wget -T 15 -w 5 -c {url} -O {dl_file_path}', shell=True, timeout=10, stdout=log_file, stderr=log_file)
             if os.path.exists(dl_file_path):
                 downloaded_size = os.path.getsize(dl_file_path)
-        os.rename(dl_file_path, file_path)
+        subprocess.run(f'mv {dl_file_path} {file_path}', shell=True, timeout=60, stdout=log_file, stderr=log_file)
         log_file.close()
-        os.remove(f'{dl_file_path}.txt')
     
         util.printD(f"Downloaded size: {downloaded_size}")
         util.printD(f"File Downloaded to: {file_path}")
         return file_path
-        
-    
-        # create header range
-        headers = {'Range': 'bytes=%d-' % downloaded_size}
-        headers['User-Agent'] = util.def_headers['User-Agent']
-    
-        # download with header
-        r = requests.get(url, stream=True, verify=False, headers=headers, proxies=util.proxies)
-    
-        # write to file
-        with open(dl_file_path, "ab") as f:
-            last = 0
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:
-                    downloaded_size += len(chunk)
-                    f.write(chunk)
-                    # force to write to disk
-                    f.flush()
-    
-                    # progress
-                    # progress = int(50 * downloaded_size / total_size)
-                    # sys.stdout.reconfigure(encoding='utf-8')
-                    # sys.stdout.write("\r[%s%s] %d%%" % ('-' * progress, ' ' * (50 - progress), 100 * downloaded_size / total_size))
-                    # sys.stdout.flush()
-                    progress = int(100 * downloaded_size / total_size)
-                    if progress != last:
-                        logger.info(f"downloading the {dl_file_path} at {progress}%")
-                        last = progress
-    
-        print()
-    
-        # rename file
-        os.rename(dl_file_path, file_path)
-    util.printD(f"File Downloaded to: {file_path}")
-    return file_path
-
