@@ -91,11 +91,14 @@ def dl(url, folder, filename, filepath):
     # check if downloading file is exsited
     while not os.path.exists(file_path):
         downloaded_size = 0
+        log_file = open(f'{dl_file_path}.txt', 'w')
         while downloaded_size<total_size:
-            subprocess.call(f'wget -T 15 -c {url} -O {dl_file_path}', shell=True)
+            subprocess.run(f'wget -T 15 -w 5 -c {url} -O {dl_file_path}', shell=True, timeout=10, stdout=log_file, stderr=log_file)
             if os.path.exists(dl_file_path):
                 downloaded_size = os.path.getsize(dl_file_path)
         os.rename(dl_file_path, file_path)
+        log_file.close()
+        os.remove(f'{dl_file_path}.txt')
     
         util.printD(f"Downloaded size: {downloaded_size}")
         util.printD(f"File Downloaded to: {file_path}")
