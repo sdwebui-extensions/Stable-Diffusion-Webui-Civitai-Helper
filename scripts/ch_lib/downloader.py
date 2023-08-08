@@ -5,6 +5,7 @@ import os
 from . import util
 from logger import logger
 import time
+import subprocess
 
 
 dl_ext = ".downloading"
@@ -91,7 +92,7 @@ def dl(url, folder, filename, filepath):
     while not os.path.exists(file_path):
         downloaded_size = 0
         while downloaded_size<total_size:
-            os.system(f'wget -T 15 -c {url} -O {dl_file_path}')
+            subprocess.call(f'wget -T 15 -c {url} -O {dl_file_path}', shell=True)
             if os.path.exists(dl_file_path):
                 downloaded_size = os.path.getsize(dl_file_path)
         os.rename(dl_file_path, file_path)
