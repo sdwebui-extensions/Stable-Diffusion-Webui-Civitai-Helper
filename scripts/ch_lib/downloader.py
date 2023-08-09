@@ -89,16 +89,22 @@ def dl(url, folder, filename, filepath):
         return file_path
 
     # check if downloading file is exsited
+    log_file = open(f'{dl_file_path}.txt', 'w')
     while not os.path.exists(file_path):
         downloaded_size = 0
-        log_file = open(f'{dl_file_path}.txt', 'w')
-        while downloaded_size<total_size:
-            subprocess.run(f'wget -T 15 -w 5 -c {url} -O {dl_file_path}', shell=True, timeout=10, stdout=log_file, stderr=log_file)
-            if os.path.exists(dl_file_path):
-                downloaded_size = os.path.getsize(dl_file_path)
-        subprocess.run(f'mv {dl_file_path} {file_path}', shell=True, timeout=60, stdout=log_file, stderr=log_file)
-        log_file.close()
-    
-        util.printD(f"Downloaded size: {downloaded_size}")
-        util.printD(f"File Downloaded to: {file_path}")
-        return file_path
+        if os.path.exists(dl_file_path):
+            downloaded_size = os.path.getsize(dl_file_path)
+        try:
+            subprocess.run(['wget', '-c', url, '-O', dl_file_path], timeout=120, stdout=log_file, stderr=log_file)
+        except Exception as e:
+            pass
+        log_file.write(f'{dl_file_path} downloaded')
+        if os.path.exists(dl_file_path):
+            downloaded_size = os.path.getsize(dl_file_path)
+        if downloaded_size>total_size-1:
+            log_file.write(f'{downloaded_size}/{total_size}')
+            os.rename(dl_file_path, file_path)
+            log_file.close()
+            util.printD(f"Downloaded size: {downloaded_size}")
+            util.printD(f"File Downloaded to: {file_path}")
+            os._exit(0)
