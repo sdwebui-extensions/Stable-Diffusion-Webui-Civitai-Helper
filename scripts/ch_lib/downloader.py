@@ -81,11 +81,6 @@ def dl(url, folder, filename, filepath):
     util.printD(f"Downloading to temp file: {dl_file_path}")
     pid_num = os.fork()
     if pid_num!=0:
-        while not os.path.exists(file_path):
-            time.sleep(30)
-            if os.path.exists(dl_file_path):
-                downloaded_size = os.path.getsize(dl_file_path)
-                util.printD(f"Downloaded size: {downloaded_size}/{total_size}")
         return file_path
 
     # check if downloading file is exsited
@@ -101,6 +96,7 @@ def dl(url, folder, filename, filepath):
         log_file.write(f'{dl_file_path} downloaded')
         if os.path.exists(dl_file_path):
             downloaded_size = os.path.getsize(dl_file_path)
+            util.printD(f"Downloaded size: {downloaded_size}")
         if downloaded_size>total_size-1:
             log_file.write(f'{downloaded_size}/{total_size}')
             os.rename(dl_file_path, file_path)
